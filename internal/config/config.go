@@ -13,6 +13,7 @@ func Read() (Config, error) {
 		return Config{}, err
 	}
 	f := filepath.Join(homepath, ".gatorconfig.json")
+	data, err := os.ReadFile(f) //([]byte, error)
 }
 
 func Config SetUser () {
