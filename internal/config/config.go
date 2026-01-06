@@ -8,17 +8,25 @@ type Config struct {
 }
 
 func Read() (Config, error) {
-	home_path, err := os.UserHomeDir()
+	homePath, err := os.UserHomeDir()
 	if err != nil {
 		return Config{}, err
 	}
-	f := filepath.Join(homepath, ".gatorconfig.json")
+	f := filepath.Join(homePath, ".gatorconfig.json")
+	
 	data, err := os.ReadFile(f) //([]byte, error)
-	Config cfg
-	json.Unmarshal(data, &cfg)
+	if err != nil {
+		return Config{}, err
+	}
+
+	var cfg Config
+	err = json.Unmarshal(data, &cfg)
+	if err != nil {
+		return Config{}, err
+	}
 	return cfg, nil
 }
 
-func Config SetUser () {
+func Config SetUser() {
 	
 }
