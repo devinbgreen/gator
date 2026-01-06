@@ -14,6 +14,9 @@ func Read() (Config, error) {
 	}
 	f := filepath.Join(homepath, ".gatorconfig.json")
 	data, err := os.ReadFile(f) //([]byte, error)
+	Config cfg
+	json.Unmarshal(data, &cfg)
+	return cfg, nil
 }
 
 func Config SetUser () {
