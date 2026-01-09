@@ -1,6 +1,10 @@
 package config
 
-import "path/filepath"
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+)
 
 type Config struct {
 	DbUrl           string `json:"db_url"`
@@ -13,7 +17,7 @@ func Read() (Config, error) {
 		return Config{}, err
 	}
 	f := filepath.Join(homePath, ".gatorconfig.json")
-	
+
 	data, err := os.ReadFile(f) //([]byte, error)
 	if err != nil {
 		return Config{}, err
@@ -27,6 +31,23 @@ func Read() (Config, error) {
 	return cfg, nil
 }
 
-func Config SetUser() {
-	
+func (cfg *Config) SetUser(username string) error {
+	cfg.CurrentUserName = username
+
+	homePath, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	f := filepath.Join(homePath, ".gatorconfig.json")
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(f, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
