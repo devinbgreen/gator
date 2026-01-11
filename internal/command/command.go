@@ -2,12 +2,17 @@ package command
 
 import (
 	"errors"
+	"fmt"
 	"gator/internal/config"
 )
 
 type command struct {
 	name string
 	args []string
+}
+
+type commands struct {
+	allCommands map[string]func(*state, command) error
 }
 
 type state struct {
@@ -20,5 +25,6 @@ func handlerLogin(s *state, cmd command) error {
 	}
 	//cmd.args[0] to update s.cfg
 	s.cfg.CurrentUserName = cmd.args[0]
+	fmt.Printf("username set to %s\n", s.cfg.CurrentUserName)
 	return nil
 }
