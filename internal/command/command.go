@@ -18,5 +18,7 @@ func handlerLogin(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
 		return errors.New("no username")
 	}
+	//cmd.args[0] to update s.cfg
+	s.cfg.CurrentUserName = cmd.args[0]
 	return nil
 }
