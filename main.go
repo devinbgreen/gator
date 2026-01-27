@@ -29,6 +29,9 @@ func main() {
 		allCommands: make(map[string]func(*state, command) error),
 	}
 	myCommands.register("login", handlerLogin)
+	myCommands.register("register", handlerRegister)
+	myCommands.register("reset", handlerReset)
+	myCommands.register("users", handlerUsers)
 
 	if len(os.Args) < 2 {
 		fmt.Println("no command")
