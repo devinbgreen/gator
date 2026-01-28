@@ -2,66 +2,60 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"gator/internal/config"
-	"gator/internal/database"
+	"log"
 	"os"
 
+	"github.com/bootdotdev/gator/internal/config"
+	"github.com/bootdotdev/gator/internal/database"
 	_ "github.com/lib/pq"
 )
 
+type state struct {
+	db  *database.Queries
+	cfg *config.Config
+}
+
 func main() {
-	// TODO: Read the config file
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Println("error reading config:", err)
-		os.Exit(1)
+		log.Fatalf("error reading config: %v", err)
 	}
-	db, err := sql.Open("postgres", cfg.DbUrl)
+
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		log.Fatalf("error connecting to db: %v", err)
+	}
+	defer db.Close()
 	dbQueries := database.New(db)
 
-	myState := state{
-		cfg: &cfg,
+	programState := &state{
 		db:  dbQueries,
+		cfg: &cfg,
 	}
 
-	myCommands := commands{
-		allCommands: make(map[string]func(*state, command) error),
+	cmds := commands{
+		registeredCommands: make(map[string]func(*state, command) error),
 	}
-	myCommands.register("login", handlerLogin)
-	myCommands.register("register", handlerRegister)
-	myCommands.register("reset", handlerReset)
-	myCommands.register("users", handlerUsers)
+	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
+	cmds.register("users", handlerListUsers)
+	cmds.register("agg", handlerAgg)
+	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
+	cmds.register("feeds", handlerListFeeds)
+	cmds.register("follow", middlewareLoggedIn(handlerCreateFeedFollow))
+	cmds.register("following", middlewareLoggedIn(handlerListFollowing))
+	cmds.register("unfollow", middlewareLoggedIn(handlerDeleteFeedFollow))
 
 	if len(os.Args) < 2 {
-		fmt.Println("no command")
-		os.Exit(1)
+		log.Fatal("Usage: cli <command> [args...]")
 	}
 
-	cmd := command{
-		name: os.Args[1],
-		args: os.Args[2:],
-	}
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
 
-	err = myCommands.run(&myState, cmd)
+	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
 	if err != nil {
-		fmt.Println("error running command", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
-
-	// TODO: Set the current user to your name and update the config file
-	/*err = cfg.SetUser("devinfinity")
-	//if err != nil {
-	//	fmt.Println("error setting user:", err)
-	//	return
-	}
-	*/
-
-	// TODO: Read the config file again and print it
-	cfg, err = config.Read()
-	if err != nil {
-		fmt.Println("error reading config:", err)
-		os.Exit(1)
-	}
-	fmt.Println(cfg)
 }
