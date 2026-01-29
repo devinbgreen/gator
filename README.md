@@ -11,4 +11,4 @@ It should contain:
 ```{"db_url":"postgres://postgres:postgres2@localhost:5432/gator?sslmode=disable","current_user_name":"yourName"}```
 
 ## Use
-Commands are: login, register, users, agg, addfeed, feeds, follow, following, unfollow
+Commands are: login, register, users, agg, addfeed, feeds, follow, following, unfollow, browse
